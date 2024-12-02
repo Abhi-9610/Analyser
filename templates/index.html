@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyser</title>
+    <link rel="icon" href="https://imgur.com/9GREmmU">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+          
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        .container {
+            margin-top: 30px;
+            max-width: 1200px;
+        }
+        .video-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+        .video-info:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .video-info img {
+            width: 250px;
+            height: 140px;
+            object-fit: cover;
+        }
+        .video-info div {
+            flex: 1;
+            padding: 15px;
+            background-color: #fff;
+        }
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .description {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 600px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+        .btn {
+            border-radius: 20px;
+            margin-left: 10px;
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .analysis-section, .top-comments-section {
+            margin-top: 30px;
+        }
+        .comment-card {
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+        .comment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .comment-text {
+            font-size: 15px;
+            margin: 10px 0;
+        }
+        .comment-likes {
+            font-size: 12px;
+            color: #888;
+        }
+        .percent-bar {
+            height: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .percent-bar-filled {
+            height: 100%;
+            border-radius: 6px;
+            text-align: center;
+            color: #fff;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .positive {
+            background-color: #28a745;
+        }
+        .negative {
+            background-color: #dc3545;
+        }
+        .neutral {
+            background-color: #ffc107;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        footer {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+        }
+        .animated-card {
+            animation: slideUp 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Comment Emotions Analysis</h1>
+        <form method="POST" action="/" class="mb-4">
+            <div class="form-group">
+                <input type="text" name="video_id" class="form-control" placeholder="Enter YouTube Video Link" required>
+                <button type="submit" class="btn">Analyze</button>
+            </div>
+        </form>
+
+        {% if video_details %}
+            <div class="video-info">
+                <img src="{{ video_details.thumbnail_url }}" alt="Thumbnail">
+                <div>
+                    <h2 class="title">{{ video_details.title }}</h2>
+                    <p class="description">{{ video_details.description }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if data %}
+            <div class="analysis-section">
+                <h3>Analysis Summary</h3>
+                <div class="mb-3">
+                    <div>Total Comments: {{ data.total_comments }}</div>
+                    <div>Total Likes: {{ total_likes }}</div>
+                    <div>Total Shares: {{ total_shares }}</div>
+                </div>
+                <div class="mb-3">
+                    <div>Positive Comments: {{ data.positive_percentage | round(2) }}%</div>
+                    <div>Negative Comments: {{ data.negative_percentage | round(2) }}%</div>
+                    <div>Neutral Comments: {{ data.neutral_percentage | round(2) }}%</div>
+                </div>
+            </div>
+
+            <h4>Top Positive Comments</h4>
+            <div class="top-comments-section">
+                {% for comment in data.top_positive %}
+                    <div class="comment-card animated-card">
+                        <div class="comment-author">{{ comment.author }} <span class="comment-likes">({{ comment.likes }} likes)</span></div>
+                        <p class="comment-text">{{ comment.text }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <h4>Top Negative Comments</h4>
+            <div class="top-comments-section">
+                {% for comment in data.top_negative %}
+                    <div class="comment-card animated-card">
+                        <div class="comment-author">{{ comment.author }} <span class="comment-likes">({{ comment.likes }} likes)</span></div>
+                        <p class="comment-text">{{ comment.text }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% if error %}
+                <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        Made by Abhishek Verma
+    </footer>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
